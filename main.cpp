@@ -1,9 +1,11 @@
 #include "rsa.hpp"
+#include "dh.hpp"
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <limits>
 #include <sstream>
+#include <vector>
 
 void printMenu() {
     std::cout << "\n=== RSA Encryption System ===\n"
@@ -11,7 +13,10 @@ void printMenu() {
               << "2. List registered users\n"
               << "3. Encrypt a message\n"
               << "4. Decrypt a message\n"
-              << "5. Exit\n"
+              << "5. Perform Diffie-Hellman Key Exchange\n"
+              << "6. Sign a message\n"
+              << "7. Verify a digital signature (manual input)\n"
+              << "8. Exit\n"
               << "Choose an option: ";
 }
 
@@ -31,6 +36,7 @@ void displayEncrypted(const std::vector<long long>& ciphertext) {
 
 int main() {
     RSA rsa;
+    DiffieHellman dh;
 
     while (true) {
         printMenu();
@@ -104,6 +110,68 @@ int main() {
                     break;
                 }
                 case 5: {
+                    dh.generateKeys();
+                    std::cout << "\nDiffie-Hellman keys generated.\n";
+                    std::cout << "Public Key: " << dh.getPublicKey() << "\n";
+
+                    std::cout << "Enter other party's public key: ";
+                    uint64_t otherPublicKey;
+                    std::cin >> otherPublicKey;
+                    std::cin.ignore();
+
+                    uint64_t sharedSecret = dh.computeSharedSecret(otherPublicKey);
+                    std::cout << "Computed shared secret: " << sharedSecret << "\n";
+                    break;
+                }
+                case 6: {
+                    std::cout << "\nEnter private key for signing (d n): ";
+                    long long d, n;
+                    std::cin >> d >> n;
+                    std::cin.ignore();
+
+                    std::cout << "Enter message to sign: ";
+                    std::string message;
+                    std::getline(std::cin, message);
+
+                    std::vector<long long> signature = rsa.sign(message, std::make_pair(d, n));
+                    std::cout << "Signature (numeric values): ";
+                    for (auto val : signature) {
+                        std::cout << val << " ";
+                    }
+                    std::cout << "\n";
+                    break;
+                }
+                case 7: {
+                    std::cout << "\nManual Digital Signature Verification\n";
+
+                    std::cout << "Enter message: ";
+                    std::string message;
+                    std::getline(std::cin, message);
+
+                    std::cout << "Enter signature (space-separated numbers): ";
+                    std::string sigInput;
+                    std::getline(std::cin, sigInput);
+                    std::vector<long long> signature;
+                    std::istringstream sigStream(sigInput);
+                    long long val;
+                    while (sigStream >> val) {
+                        signature.push_back(val);
+                    }
+
+                    std::cout << "Enter sender's public key (e n): ";
+                    long long e, n;
+                    std::cin >> e >> n;
+                    std::cin.ignore();
+
+                    bool verified = rsa.verify(message, signature, std::make_pair(e, n));
+                    if (verified) {
+                        std::cout << "Signature verification SUCCESSFUL.\n";
+                    } else {
+                        std::cout << "Signature verification FAILED.\n";
+                    }
+                    break;
+                }
+                case 8: {
                     std::cout << "\nExiting program. Goodbye!\n";
                     return 0;
                 }

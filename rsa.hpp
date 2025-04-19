@@ -37,6 +37,10 @@ public:
     const std::vector<User>& getUsers() const { return users; }
     std::vector<long long> encrypt(const std::string& message, const std::pair<long long, long long>& publicKey);
     std::string decrypt(const std::vector<long long>& ciphertext, const std::pair<long long, long long>& privateKey);
+
+    // New methods for digital signature
+    std::vector<long long> sign(const std::string& message, const std::pair<long long, long long>& privateKey);
+    bool verify(const std::string& message, const std::vector<long long>& signature, const std::pair<long long, long long>& publicKey);
 };
 
 #endif

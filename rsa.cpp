@@ -3,6 +3,8 @@
 #include <ctime>
 #include <stdexcept>
 #include <algorithm>
+#include <numeric> // for std::accumulate
+#include <functional> // for std::hash
 
 RSA::RSA() : p(0), q(0), n(0), phi(0), d(0), e(0) {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -149,4 +151,31 @@ User* RSA::findUser(const std::string& username) {
         return &(*it);
     }
     return nullptr;
+}
+
+// New method to sign a message using private key
+std::vector<long long> RSA::sign(const std::string& message, const std::pair<long long, long long>& privateKey) {
+    // Simple hash: sum of chars mod 256 (for demonstration)
+    unsigned long long hash = 0;
+    for (char c : message) {
+        hash = (hash + static_cast<unsigned char>(c)) % 256;
+    }
+    // Convert hash to string
+    std::string hashStr = std::to_string(hash);
+    // Encrypt hash string with private key
+    return encrypt(hashStr, privateKey);
+}
+
+// New method to verify a signature using public key
+bool RSA::verify(const std::string& message, const std::vector<long long>& signature, const std::pair<long long, long long>& publicKey) {
+    // Decrypt signature to get hash string
+    std::string decryptedHashStr = decrypt(signature, publicKey);
+    // Compute hash of message
+    unsigned long long hash = 0;
+    for (char c : message) {
+        hash = (hash + static_cast<unsigned char>(c)) % 256;
+    }
+    std::string computedHashStr = std::to_string(hash);
+    // Compare
+    return decryptedHashStr == computedHashStr;
 }
