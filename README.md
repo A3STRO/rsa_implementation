@@ -20,20 +20,16 @@ A simple implementation of RSA encryption in C++ for educational purposes. This 
 
 ### Build Instructions
 
-1. Create a build directory:
+You can build the project directly using g++ without CMake:
+
 ```bash
-mkdir build
-cd build
+g++ main.cpp rsa.cpp dh.cpp -o rsa_app
 ```
 
-2. Generate build files:
-```bash
-cmake -G "MinGW Makefiles" ..
-```
+Then run the program:
 
-3. Build the project:
 ```bash
-cmake --build .
+./rsa_app
 ```
 
 ## Usage
